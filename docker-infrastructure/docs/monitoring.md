@@ -3,13 +3,12 @@
 ## Stack Overview
 
 ```
-┌──────────────┐     ┌──────────────┐
-│   Netdata    │     │  Promtail    │
-│  (Real-time  │     │ (Log agent)  │
-│   metrics)   │     │              │
-└──────┬───────┘     └──────┬───────┘
-       │                    │
-       ▼                    ▼
+┌──────────────┐
+│  Promtail    │
+│ (Log agent)  │
+└──────┬───────┘
+       │
+       ▼
 ┌──────────────┐     ┌──────────────┐
 │  Prometheus  │     │    Loki      │
 │  (Metrics    │     │  (Log store) │
@@ -138,36 +137,6 @@ Promtail attaches these labels to every log entry:
 
 ---
 
-## Netdata
-
-### Access
-
-```
-URL: http://YOUR_IP:19999
-```
-
-Netdata provides real-time, per-second metrics for:
-
-- CPU, memory, disk, network
-- Docker container resource usage
-- 100+ pre-built charts
-- Health alarms with notifications
-
-### Claim to Netdata Cloud (Optional)
-
-Set these in `.env`:
-
-```bash
-NETDATA_CLAIM_TOKEN=your-token
-NETDATA_CLAIM_URL=https://app.netdata.cloud
-```
-
-Then restart Netdata:
-
-```bash
-docker compose up -d netdata
-```
-
 ---
 
 ## Uptime Kuma
@@ -196,7 +165,7 @@ Monitor:
 | Loki       | retention_period              | 720h    | 720h (30 days) is standard   |
 | Loki       | ingestion_rate_mb             | 10 MB/s | Increase for high-volume     |
 | Grafana    | Instance memory               | 256 MB  | 512 MB+ for large dashboards |
-| Netdata    | Cache                         | Auto    | 256 MB+ on busy servers      |
+
 
 ---
 
@@ -204,7 +173,7 @@ Monitor:
 
 1. **Start small** - Monitor CPU, disk, memory, and critical service health
 2. **Use Grafana alerts** for Prometheus metrics
-3. **Use Netdata alarms** for real-time system health
+
 4. **Configure notification channels** (Slack, email, webhook)
 5. **Set up Uptime Kuma** for external endpoint monitoring
 6. **Test your alerts** - Trigger them intentionally to verify delivery

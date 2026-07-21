@@ -95,7 +95,7 @@ docker compose ps
 | Mailpit UI       | http://YOUR_IP:8025        | No auth required                             |
 | Prometheus       | http://YOUR_IP:9090        | No auth (firewalled)                         |
 | Grafana          | http://YOUR_IP:3000        | Set in GF_SECURITY_ADMIN_USER/PASSWORD       |
-| Netdata          | http://YOUR_IP:19999       | No auth (firewalled)                         |
+
 | Uptime Kuma      | http://YOUR_IP:3001        | Create on first login                        |
 | Jenkins          | http://YOUR_IP:8080        | Initial password in container logs           |
 | Arcane           | http://YOUR_IP:3552        | Create on first login                        |

@@ -37,10 +37,10 @@ Production-ready Docker Compose infrastructure for Laravel, NestJS, NextJS, Reac
 │  │    9090      │  │    3000      │  │    3100      │                   │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘                   │
 │         │                 │                  │                           │
-│  ┌──────┴───────┐  ┌──────┴───────┐                                    │
-│  │  Promtail    │  │   Netdata    │                                    │
-│  │  (log agent) │  │   19999      │                                    │
-│  └──────────────┘  └──────────────┘                                    │
+│  ┌──────────────┐                                                       │
+│  │  Promtail    │                                                       │
+│  │  (log agent) │                                                       │
+│  └──────────────┘                                                       │
 │                                                                          │
 │                            mail_network                                  │
 │                                                                          │
@@ -101,7 +101,7 @@ docker compose up -d mysql mysql-replica postgres postgres-replica \
   mongo redis phpmyadmin pgadmin redisinsight
 
 # Monitoring server
-docker compose --profile production up -d prometheus grafana loki promtail netdata
+docker compose --profile production up -d prometheus grafana loki promtail
 
 # Security server
 docker compose --profile production up -d crowdsec uptime-kuma
@@ -170,7 +170,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 ### Email (`compose/mail.yml`)
 | Service       | Profile       | Version | Ports          | Description                           |
 |---------------|---------------|---------|----------------|---------------------------------------|
-| Mailpit       | development   | v1.21   | 1025 / 8025    | SMTP capture + web UI (dev only)     |
+| Mailpit       | development   | latest  | 1025 / 8025    | SMTP capture + web UI (dev only)     |
 
 ### Monitoring (`compose/monitoring.yml`) — profile: production
 | Service   | Version | Ports  | Description                          |
@@ -179,7 +179,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 | Grafana   | 12.0.2  | 3000   | Metrics visualization & dashboards   |
 | Loki      | 3.5.0   | 3100   | Log aggregation                      |
 | Promtail  | 3.5.0   | -      | Docker log collector → Loki          |
-| Netdata   | v2.4.0  | 19999  | Real-time performance monitoring     |
+
 
 ### Reverse Proxy (`compose/proxy.yml`)
 | Service             | Version | Ports       | Description                         |
@@ -190,7 +190,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 | Service    | Version | Ports | Description                             |
 |------------|---------|-------|-----------------------------------------|
 | CrowdSec   | v1.6.8  | -     | IPS/IDS with collaborative IP reputation|
-| Uptime Kuma| 1.23.16 | 3001  | Uptime monitoring                       |
+| Uptime Kuma| 2.4.0   | 3001  | Uptime monitoring                       |
 
 ### CI/CD (`compose/cicd.yml`) — profile: production
 | Service | Version           | Ports       | Description                |
@@ -211,7 +211,7 @@ Services are organized into profiles — start only what you need:
 |---------|----------|---------|
 | _(none)_ | mysql, postgres, mongo, redis, phpmyadmin, pgadmin, redisinsight, rabbitmq, minio, nginx-proxy-manager | `docker compose up -d` |
 | **development** | _(above)_ + mailpit | `docker compose --profile development up -d` |
-| **production** | _(above)_ + prometheus, grafana, loki, promtail, netdata, crowdsec, uptime-kuma, jenkins, arcane, watchtower | `docker compose --profile production up -d` |
+| **production** | _(above)_ + prometheus, grafana, loki, promtail, crowdsec, uptime-kuma, jenkins, arcane, watchtower | `docker compose --profile production up -d` |
 
 Services without a profile always start. Multiple profiles can be combined:
 ```bash
@@ -228,7 +228,7 @@ The `backend_network` is internal — containers on it cannot reach the internet
 |--------------------|--------|---------------------|--------------------------------------------|
 | frontend_network   | bridge | No / No             | Public-facing services, proxy              |
 | backend_network    | bridge | **Yes**             | Databases, message broker, internal services|
-| monitoring_network | bridge | No / No             | Prometheus, Grafana, Loki, Netdata         |
+| monitoring_network | bridge | No / No             | Prometheus, Grafana, Loki, Promtail        |
 | mail_network       | bridge | No                  | Email services                             |
 
 
@@ -252,7 +252,6 @@ All data is persisted in Docker volumes (named, not host bind mounts):
 | prometheus_data   | Prometheus                        |
 | grafana_data      | Grafana                           |
 | loki_data         | Loki                              |
-| netdata_data         | Netdata                        |
 | crowdsec_config_data | CrowdSec (config)               |
 | crowdsec_log_data    | CrowdSec (logs)                 |
 | uptime_kuma_data     | Uptime Kuma                    |

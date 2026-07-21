@@ -52,7 +52,7 @@ ALL_SERVICES=(
   rabbitmq
   minio
   mailpit
-  prometheus grafana loki promtail netdata
+  prometheus grafana loki promtail
   nginx-proxy-manager
   crowdsec uptime-kuma
   jenkins
@@ -65,7 +65,7 @@ CONTAINER_NAMES=(
   rabbitmq
   minio
   mailpit
-  prometheus grafana loki promtail netdata
+  prometheus grafana loki promtail
   nginx-proxy-manager
   crowdsec uptime-kuma
   jenkins

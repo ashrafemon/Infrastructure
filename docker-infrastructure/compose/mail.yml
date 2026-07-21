@@ -13,7 +13,7 @@ services:
   # ---------------------------------------------------------------------------
   mailpit:
     profiles: ["development"]
-    image: axllent/mailpit:v1.21
+    image: axllent/mailpit
     container_name: mailpit
     restart: unless-stopped
     networks:

@@ -1,7 +1,7 @@
 # =============================================================================
 # Monitoring Stack  (profile: production)
 # =============================================================================
-# Prometheus 3.5  |  Grafana 12.0  |  Loki 3.5  |  Promtail 3.5  |  Netdata 2.4
+# Prometheus 3.5  |  Grafana 12.0  |  Loki 3.5  |  Promtail 3.5
 #
 # Starts only with: docker compose --profile production up -d
 # =============================================================================
@@ -170,44 +170,4 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  netdata:
-    profiles: ["production"]
-    image: netdata/netdata:v2.4.0
-    container_name: netdata
-    restart: unless-stopped
-    networks:
-      - monitoring_network
-    ports:
-      - "19999:19999"
-    hostname: ${HOSTNAME:-netdata-server}
-    environment:
-      DOCKER_USERS: root
-      NETDATA_CLAIM_TOKEN: ${NETDATA_CLAIM_TOKEN:-}
-      NETDATA_CLAIM_URL: ${NETDATA_CLAIM_URL:-}
-      NETDATA_CLAIM_ROOMS: ""
-      TZ: ${TZ:-UTC}
-    volumes:
-      - netdata_data:/var/cache/netdata
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /etc/os-release:/host/etc/os-release:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    cap_add:
-      - SYS_PTRACE
-      - SYS_ADMIN
-    security_opt:
-      - no-new-privileges:true
-      - apparmor:unconfined
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:19999/api/v1/info"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+

@@ -97,9 +97,7 @@ volumes:
   loki_data:
     name: loki_data
     external: false
-  netdata_data:
-    name: netdata_data
-    external: false
+
   crowdsec_config_data:
     name: crowdsec_config_data
     external: false

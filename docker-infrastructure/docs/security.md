@@ -93,7 +93,7 @@ The infrastructure uses Docker networks to segment traffic:
 |--------------------|-----------------------------------------------|--------------------|
 | frontend_network   | NPM, phpMyAdmin, pgAdmin, RedisInsight, Uptime Kuma, Arcane | Limited ports |
 | backend_network    | MySQL, PostgreSQL, MongoDB, Redis, RabbitMQ, MinIO | Internal only     |
-| monitoring_network | Prometheus, Grafana, Loki, Promtail, Netdata  | Limited ports     |
+| monitoring_network | Prometheus, Grafana, Loki, Promtail  | Limited ports     |
 | mail_network       | Mailpit                                       | Internal only     |
 
 ### Internal Network
@@ -172,7 +172,7 @@ The infrastructure applies minimal capabilities:
 
 - Most containers run with **no extra capabilities**
 - Jenkins needs no special capabilities
-- Netdata needs `SYS_PTRACE` and `SYS_ADMIN` for system monitoring
+
 - Watchtower needs Docker socket access
 
 ### Read-only Root Filesystem
