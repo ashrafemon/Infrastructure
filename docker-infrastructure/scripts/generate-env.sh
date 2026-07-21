@@ -11,7 +11,7 @@
 #   ./scripts/generate-env.sh redis grafana # Regenerate specific ones
 #
 # Secret names: mysql, postgres, mongo, redis, rabbitmq, minio, grafana,
-#               pgadmin, crowdsec, postfix
+#               pgadmin, crowdsec
 # =============================================================================
 
 set -euo pipefail

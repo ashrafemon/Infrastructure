@@ -3,7 +3,7 @@
 # =============================================================================
 # Profile-based: choose one based on your environment.
 #
-#   docker compose --profile production up -d    # Postfix (production SMTP)
+#   docker compose --profile production up -d
 #   docker compose --profile development up -d   # Mailpit (dev SMTP capture)
 # =============================================================================
 

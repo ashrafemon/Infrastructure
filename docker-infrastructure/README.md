@@ -548,7 +548,6 @@ docker-infrastructure/
     ├── security.md
     ├── upgrade.md
     ├── cloudflare-ssl.md
-    ├── postfix.md
     └── mailcow.md
 ```
 
