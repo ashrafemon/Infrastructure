@@ -298,6 +298,14 @@ docker compose down -v
 docker compose stop mysql
 ```
 
+### Full Reset (clean slate)
+
+Stops all containers, removes all images and volumes — starts fresh:
+
+```bash
+docker stop $(docker ps -aq) && docker system prune -a --volumes -f
+```
+
 ### View Logs
 
 ```bash
