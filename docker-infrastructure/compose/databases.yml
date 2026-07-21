@@ -232,7 +232,7 @@ services:
   # Redis 7.4 - In-memory data structure store (cache, session, queue)
   # ---------------------------------------------------------------------------
   redis:
-    image: redis:7.4.5-alpine
+    image: redis:7.4.6-alpine
     container_name: redis
     restart: unless-stopped
     networks:

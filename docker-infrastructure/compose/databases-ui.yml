@@ -93,7 +93,7 @@ services:
         max-file: "3"
 
   redisinsight:
-    image: redis/redisinsight:2.70
+    image: redis/redisinsight:2.70.0
     container_name: redisinsight
     restart: unless-stopped
     networks:
