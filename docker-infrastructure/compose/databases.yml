@@ -24,8 +24,8 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./configs/mysql/conf.d/master.cnf:/etc/mysql/conf.d/master.cnf:ro
-      - ./scripts/mysql/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh:ro
+      - ../configs/mysql/conf.d/master.cnf:/etc/mysql/conf.d/master.cnf:ro
+      - ../scripts/mysql/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh:ro
     cap_drop:
       - ALL
     cap_add:
@@ -67,8 +67,8 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - mysql_replica_data:/var/lib/mysql
-      - ./configs/mysql/conf.d/replica.cnf:/etc/mysql/conf.d/replica.cnf:ro
-      - ./scripts/mysql/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
+      - ../configs/mysql/conf.d/replica.cnf:/etc/mysql/conf.d/replica.cnf:ro
+      - ../scripts/mysql/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
     cap_drop:
       - ALL
     cap_add:
@@ -113,9 +113,9 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./configs/postgres/primary.conf:/etc/postgresql/conf.d/primary.conf:ro
-      - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
-      - ./scripts/postgres/init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh:ro
+      - ../configs/postgres/primary.conf:/etc/postgresql/conf.d/primary.conf:ro
+      - ../configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ../scripts/postgres/init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh:ro
     cap_drop:
       - ALL
     cap_add:
@@ -156,7 +156,7 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - postgres_replica_data:/var/lib/postgresql/data
-      - ./scripts/postgres/init-standby.sh:/init-standby.sh:ro
+      - ../scripts/postgres/init-standby.sh:/init-standby.sh:ro
     cap_drop:
       - ALL
     cap_add:
