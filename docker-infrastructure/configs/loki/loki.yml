@@ -14,6 +14,16 @@ common:
     kvstore:
       store: inmemory
 
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
 limits_config:
   ingestion_rate_mb: 10
   ingestion_burst_size_mb: 20

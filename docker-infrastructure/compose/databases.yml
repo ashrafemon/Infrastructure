@@ -113,11 +113,16 @@ services:
       TZ: ${TZ:-UTC}
     command:
       - postgres
-      - -c wal_level=replica
-      - -c max_wal_senders=5
-      - -c wal_keep_size=1024
-      - -c max_replication_slots=5
-      - -c hot_standby=on
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=5
+      - -c
+      - wal_keep_size=1024
+      - -c
+      - max_replication_slots=5
+      - -c
+      - hot_standby=on
     volumes:
       - postgres_data:/var/lib/postgresql
       - ../scripts/postgres/init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh:ro
