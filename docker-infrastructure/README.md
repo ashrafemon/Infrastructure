@@ -550,6 +550,14 @@ docker-infrastructure/
     └── mailcow.md
 ```
 
+## CleanUp
+```
+docker stop $(docker ps -aq) && docker system prune -a --volumes -f
+
+
+docker compose up -d mysql phpmyadmin redis nginx-proxy-manager rabbitmq arcane uptime-kuma watchtower redisinsight jenkins
+```
+
 ## License
 
 This infrastructure is provided as-is. Use at your own risk. Always test upgrades in a staging environment before applying to production.
