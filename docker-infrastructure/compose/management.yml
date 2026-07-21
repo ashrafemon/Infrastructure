@@ -19,6 +19,7 @@ services:
     environment:
       PORT: "3552"
       DATA_DIR: /data
+      JWT_SECRET: ${ARCANE_JWT_SECRET:?err}
       TZ: ${TZ:-UTC}
     volumes:
       - arcane_data:/data

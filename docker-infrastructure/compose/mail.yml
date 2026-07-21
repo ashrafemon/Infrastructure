@@ -26,12 +26,13 @@ services:
     environment:
       POSTFIX_HOSTNAME: ${POSTFIX_HOSTNAME:-mail.example.com}
       POSTFIX_DOMAIN: ${POSTFIX_DOMAIN:-example.com}
+      ALLOWED_SENDER_DOMAINS: ${POSTFIX_DOMAIN:-example.com}
       POSTFIX_RELAYHOST: ${POSTFIX_RELAYHOST:-}
       SMTP_USER: ${POSTFIX_SMTP_USER:-}
       SMTP_PASSWORD: ${POSTFIX_SMTP_PASSWORD:-}
       SMTP_USE_TLS: ${POSTFIX_TLS:-yes}
       SMTP_PORT: "587"
-      MESSAGE_SIZE_LIMIT: ${POSTFIX_MESSAGE_SIZE:-52428800}
+      POSTFIX_message_size_limit: ${POSTFIX_MESSAGE_SIZE:-52428800}
       SMTP_SASL_SECURITY_OPTIONS: noanonymous
       TZ: ${TZ:-UTC}
     volumes:
