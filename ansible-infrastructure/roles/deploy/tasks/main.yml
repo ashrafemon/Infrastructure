@@ -12,6 +12,7 @@
       - "--exclude=.git"
       - "--exclude=.env"
       - "--exclude=backups"
+  tags: [sync]
 
 - name: Ensure backup directory exists
   file:

@@ -10,8 +10,19 @@
       - curl
       - gnupg
       - lsb-release
+      - rsync
+      - python3
+      - python3-pip
     state: present
     update_cache: true
+
+- name: Install Ansible collections
+  pip:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker
+  when: ansible_connection != 'local'
 
 - name: Add Docker GPG key
   apt_key:

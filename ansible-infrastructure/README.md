@@ -34,10 +34,11 @@ ansible-infrastructure/
 
 ## Quick Start
 
-### 1. Install Ansible
+### 1. Install Ansible + Collections
 
 ```bash
 pip install ansible
+ansible-galaxy collection install community.docker
 ```
 
 ### 2. Configure Inventory
@@ -106,7 +107,7 @@ ansible-vault encrypt group_vars/vault.yml
 ansible-vault decrypt group_vars/vault.yml
 ```
 
-All Ansible commands require `--ask-vault-pass` to decrypt. For automation, use a vault password file:
+All Ansible commands require `--ask-vault-pass` to decrypt. For automation, use a vault password file (add `.vault_pass` to `.gitignore`):
 
 ```bash
 echo "your-vault-password" > .vault_pass
@@ -135,6 +136,7 @@ These are injected into the `.env` template at `roles/env/templates/.env.j2`.
 - **First run:** `deploy.yml` runs all roles (bootstrap + deploy + healthcheck)
 - **Subsequent updates:** `update.yml` runs backup → pull → recreate → healthcheck
 - **Quick .env change:** `deploy.yml --tags deploy` (skips Docker install and firewall)
+- **Sync only (update files without restart):** `ansible-playbook playbooks/deploy.yml --tags sync`
 
 ---
 
