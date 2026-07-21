@@ -1,7 +1,7 @@
 # =============================================================================
 # Management Services  (profile: production)
 # =============================================================================
-# Arcane 1.10  |  Watchtower 1.7  |  Vault 1.19
+# Arcane  |  Watchtower 1.7
 #
 # Starts only with: docker compose --profile production up -d
 # =============================================================================
@@ -9,7 +9,7 @@
 services:
   arcane:
     profiles: ["production"]
-    image: ghcr.io/getarcaneapp/manager:1.10.0
+    image: ghcr.io/getarcaneapp/manager:latest
     container_name: arcane
     restart: unless-stopped
     networks:
@@ -17,10 +17,14 @@ services:
     ports:
       - "127.0.0.1:3552:3552"
     environment:
+      PORT: "3552"
+      DATA_DIR: /data
       TZ: ${TZ:-UTC}
     volumes:
       - arcane_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/proc:ro
+      - /sys:/sys:ro
     cap_drop:
       - ALL
     cap_add:
