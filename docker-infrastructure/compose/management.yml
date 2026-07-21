@@ -15,7 +15,7 @@ services:
     networks:
       - frontend_network
     ports:
-      - "${DB_BIND_ADDRESS}3552:3552"
+      - "3552:3552"
     environment:
       PORT: "3552"
       DATA_DIR: /data

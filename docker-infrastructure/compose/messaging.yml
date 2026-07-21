@@ -12,8 +12,8 @@ services:
     networks:
       - backend_network
     ports:
-      - "${DB_BIND_ADDRESS}5672:5672"
-      - "${DB_BIND_ADDRESS}15672:15672"
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?err}

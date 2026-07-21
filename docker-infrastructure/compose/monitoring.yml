@@ -16,7 +16,7 @@ services:
       - monitoring_network
       - backend_network
     ports:
-      - "${DB_BIND_ADDRESS}9090:9090"
+      - "9090:9090"
     environment:
       TZ: ${TZ:-UTC}
     volumes:
@@ -60,7 +60,7 @@ services:
       - monitoring_network
       - backend_network
     ports:
-      - "${DB_BIND_ADDRESS}3000:3000"
+      - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:?err}
@@ -178,7 +178,7 @@ services:
     networks:
       - monitoring_network
     ports:
-      - "${DB_BIND_ADDRESS}19999:19999"
+      - "19999:19999"
     hostname: ${HOSTNAME:-netdata-server}
     environment:
       DOCKER_USERS: root

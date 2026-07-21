@@ -16,8 +16,8 @@ services:
       - frontend_network
       - backend_network
     ports:
-      - "${DB_BIND_ADDRESS}8080:8080"
-      - "${DB_BIND_ADDRESS}50000:50000"
+      - "8080:8080"
+      - "50000:50000"
     environment:
       JAVA_OPTS: >-
         -Djenkins.install.runSetupWizard=true

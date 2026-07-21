@@ -20,7 +20,7 @@ services:
       - backend_network
     ports:
       - "80:80"
-      - "${DB_BIND_ADDRESS}81:81"
+      - "81:81"
       - "443:443"
     environment:
       DB_SQLITE_FILE: /data/database.sqlite

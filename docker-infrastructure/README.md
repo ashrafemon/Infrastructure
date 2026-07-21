@@ -71,10 +71,6 @@ cp .env.example .env
 ```bash
 # Generate all passwords
 ./scripts/generate-env.sh
-
-# For production, also set these in .env:
-#   PRODUCTION=true
-#   DB_BIND_ADDRESS=127.0.0.1:
 ```
 
 Regenerate a single password later (if compromised):
@@ -92,7 +88,6 @@ docker compose --profile development up -d
 
 **Production** — full stack with monitoring, security, CI/CD, Postfix:
 ```bash
-# In .env: set PRODUCTION=true, DB_BIND_ADDRESS=127.0.0.1:
 docker compose --profile production up -d
 ```
 
@@ -224,27 +219,20 @@ Services without a profile always start. Multiple profiles can be combined:
 docker compose --profile production --profile development up -d
 ```
 
-## Environment Modes
+## Network Isolation
 
-The `PRODUCTION` and `DB_BIND_ADDRESS` variables in `.env` control security boundaries:
-
-| Variable | Dev default | Production setting | Effect |
-|----------|-------------|--------------------|--------|
-| `PRODUCTION=false` | ← default | Change to `true` | `backend_network.internal` disabled in dev, enabled in prod |
-| `DB_BIND_ADDRESS=` | ← default | `127.0.0.1:` | Empty = ports on `0.0.0.0`, set = restrict to localhost |
-
-In development, databases bind to `0.0.0.0` so applications running on the host can connect directly. In production, they bind to `127.0.0.1` and the backend network is isolated.
+The `backend_network` is internal — containers on it cannot reach the internet, and external containers cannot reach it. Services publish ports directly to the host (`PORT:PORT`) for application access.
 
 ## Networks
 
 | Network            | Driver | Internal (dev/prod) | Purpose                                    |
 |--------------------|--------|---------------------|--------------------------------------------|
 | frontend_network   | bridge | No / No             | Public-facing services, proxy              |
-| backend_network    | bridge | No / **Yes**        | Databases, message broker, internal services|
+| backend_network    | bridge | **Yes**             | Databases, message broker, internal services|
 | monitoring_network | bridge | No / No             | Prometheus, Grafana, Loki, Netdata         |
 | mail_network       | bridge | No / No             | Email services                             |
 
-`backend_network.internal` is toggled by `PRODUCTION` — open in dev, isolated in prod.
+
 
 ## Persistent Volumes
 
@@ -516,7 +504,7 @@ The `.env` file is gitignored — never committed to the repository. On producti
 Before going live, verify each:
 
 - [ ] **Passwords** — ran `./scripts/generate-env.sh`
-- [ ] **.env** — `PRODUCTION=true`, `DB_BIND_ADDRESS=127.0.0.1:`
+- [ ] **.env** — all passwords generated with `./scripts/generate-env.sh`
 - [ ] **Firewall** — UFW/iptables configured (see [docs/security.md](docs/security.md))
 - [ ] **SSH** — key-only authentication, password auth disabled
 - [ ] **SSL** — wildcard cert issued in NPM via Cloudflare DNS challenge
