@@ -119,12 +119,14 @@ docker compose --profile production up -d
 ## Service Overview
 
 ### Databases (`compose/databases.yml`)
-| Service    | Version     | Port  | Description                                |
-|------------|-------------|-------|--------------------------------------------|
-| MySQL      | 8.0.41      | 3306  | Primary relational database                 |
-| PostgreSQL | 18.4        | 5432  | Advanced relational database               |
-| MongoDB    | 8.0.15      | 27017 | NoSQL document database                    |
-| Redis      | 7.4.5-alpine| 6379  | In-memory cache, session store, queue      |
+| Service          | Version     | Port  | Description                                |
+|------------------|-------------|-------|--------------------------------------------|
+| MySQL            | 8.0.41      | 3306  | Primary relational database                 |
+| MySQL Replica    | 8.0.41      | 3307  | Read replica (auto-setup)                  |
+| PostgreSQL       | 18.4        | 5432  | Advanced relational database               |
+| PostgreSQL Replica | 18.4      | 5433  | Hot standby (auto-setup)                   |
+| MongoDB          | 8.0.15      | 27017 | NoSQL document database                    |
+| Redis            | 7.4.5-alpine| 6379  | In-memory cache, session store, queue      |
 
 ### Database Management (`compose/databases-ui.yml`)
 | Service      | Version  | Port  | Description                  |
@@ -245,6 +247,8 @@ All data is persisted in Docker volumes (named, not host bind mounts):
 | postfix_spool_data   | Postfix (spool)                |
 | postfix_config_data  | Postfix (config)               |
 | mailpit_data         | Mailpit (dev only)             |
+| mysql_replica_data   | MySQL Replica                  |
+| postgres_replica_data | PostgreSQL Replica            |
 
 ## Usage
 
@@ -334,6 +338,43 @@ docker exec -it rabbitmq rabbitmqadmin list queues
 ```
 
 See [docs/backup.md](docs/backup.md) for detailed backup and restore instructions.
+
+## Database Replication
+
+Both MySQL and PostgreSQL have automatic read replicas:
+
+| Service | Type | Port | Replicates from |
+|---------|------|------|----------------|
+| `mysql-replica` | MySQL read replica | 3307 | `mysql` (master) |
+| `postgres-replica` | PostgreSQL hot standby | 5433 | `postgres` (primary) |
+
+### Automatic Setup
+
+On first start:
+1. **Master/Primary** creates replication user and slot via init scripts
+2. **Replica/Standby** waits for master to be healthy (`depends_on`)
+3. **MySQL replica** — init script runs `CHANGE REPLICATION SOURCE TO` + `START REPLICA`
+4. **PostgreSQL standby** — init script runs `pg_basebackup` to clone data, creates `standby.signal`
+
+### Verification
+
+```bash
+# MySQL — check replica status
+docker exec mysql-replica mysql -u root -p"${MYSQL_ROOT_PASSWORD}" \
+  -e "SHOW REPLICA STATUS\G" | grep -E "Replica_IO_Running|Replica_SQL_Running"
+
+# PostgreSQL — check if standby is receiving
+docker exec postgres-replica psql -U postgres -c "SELECT pg_is_in_recovery();"
+```
+
+### Connection Strings
+
+| Role | Host | Port | User | Password from |
+|------|------|------|------|---------------|
+| MySQL master | `mysql` | 3306 | `root` | `MYSQL_ROOT_PASSWORD` |
+| MySQL replica | `mysql-replica` | 3307 | `root` | `MYSQL_ROOT_PASSWORD` |
+| PostgreSQL primary | `postgres` | 5432 | `postgres` | `POSTGRES_PASSWORD` |
+| PostgreSQL standby | `postgres-replica` | 5433 | `postgres` | `POSTGRES_PASSWORD` |
 
 ## Subdomain Binding
 
