@@ -48,11 +48,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.5'
+          memory: 256M
         reservations:
           cpus: '0.1'
-          memory: 128M
+          memory: 64M
     healthcheck:
       test: ["CMD-SHELL", "postfix status || postfix start"]
       interval: 30s
@@ -101,8 +101,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '0.25'
+          memory: 128M
         reservations:
           cpus: '0.1'
           memory: 64M

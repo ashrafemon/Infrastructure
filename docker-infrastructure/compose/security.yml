@@ -45,11 +45,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.5'
+          memory: 256M
         reservations:
           cpus: '0.25'
-          memory: 256M
+          memory: 128M
     healthcheck:
       test: ["CMD", "cscli", "metrics"]
       interval: 30s
@@ -88,8 +88,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.5'
+          memory: 256M
         reservations:
           cpus: '0.25'
           memory: 128M

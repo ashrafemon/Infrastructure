@@ -35,11 +35,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
-        reservations:
           cpus: '1'
-          memory: 1G
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
       interval: 30s
@@ -81,11 +81,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
-        reservations:
           cpus: '1'
-          memory: 1G
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 30s
@@ -128,11 +128,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
-        reservations:
           cpus: '1'
-          memory: 1G
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\")' --username ${MONGO_INITDB_ROOT_USERNAME:-root} --password ${MONGO_INITDB_ROOT_PASSWORD:?err} --authenticationDatabase admin | grep -q '\"ok\" : 1'"]
       interval: 30s
@@ -179,11 +179,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
