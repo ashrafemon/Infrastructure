@@ -255,11 +255,10 @@ services:
       REDISCLI_AUTH: ${REDIS_PASSWORD:?err}
       TZ: ${TZ:-UTC}
     command: >
-      redis-server --appendonly yes
+      redis-server --save 900 1 --save 300 10 --save 60 10000
         --requirepass ${REDIS_PASSWORD:?err}
-        --appendfsync everysec
-        --auto-aof-rewrite-percentage 100
-        --auto-aof-rewrite-min-size 64mb
+        --dbfilename dump.rdb
+        --dir /data
     cap_drop:
       - ALL
     cap_add:
