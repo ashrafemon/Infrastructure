@@ -63,6 +63,7 @@ services:
       - frontend_network
     ports:
       - "3001:3001"
+    user: root
     environment:
       TZ: ${TZ:-UTC}
     volumes:
