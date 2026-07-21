@@ -20,6 +20,7 @@ services:
       PORT: "3552"
       DATA_DIR: /data
       JWT_SECRET: ${ARCANE_JWT_SECRET:?err}
+      ENCRYPTION_KEY: ${ARCANE_ENCRYPTION_KEY:?err}
       TZ: ${TZ:-UTC}
     volumes:
       - arcane_data:/data

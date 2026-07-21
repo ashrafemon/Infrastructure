@@ -49,7 +49,7 @@ if [ $# -eq 0 ]; then
            REDIS_PASSWORD RABBITMQ_PASSWORD MINIO_ROOT_PASSWORD \
            GF_SECURITY_ADMIN_PASSWORD PGADMIN_DEFAULT_PASSWORD \
            CROWDSEC_AGENT_PASSWORD POSTFIX_SMTP_PASSWORD \
-           ARCANE_JWT_SECRET; do
+           ARCANE_JWT_SECRET ARCANE_ENCRYPTION_KEY; do
     update "$k"
   done
   chmod 0600 "$ENV_FILE" 2>/dev/null || true
@@ -69,7 +69,8 @@ for name in "$@"; do
     grafana)  update GF_SECURITY_ADMIN_PASSWORD ;;
     pgadmin)  update PGADMIN_DEFAULT_PASSWORD ;;
     crowdsec) update CROWDSEC_AGENT_PASSWORD ;;
-    postfix)  update POSTFIX_SMTP_PASSWORD ;;
-    *) echo "  Unknown: $name (valid: mysql, postgres, mongo, redis, rabbitmq, minio, grafana, pgadmin, crowdsec, postfix)" ;;
+     postfix)  update POSTFIX_SMTP_PASSWORD ;;
+     arcane)   update ARCANE_JWT_SECRET; update ARCANE_ENCRYPTION_KEY ;;
+    *) echo "  Unknown: $name (valid: mysql, postgres, mongo, redis, rabbitmq, minio, grafana, pgadmin, crowdsec, postfix, arcane)" ;;
   esac
 done
