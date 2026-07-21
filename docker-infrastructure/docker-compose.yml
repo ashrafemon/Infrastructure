@@ -1,0 +1,117 @@
+# =============================================================================
+# Docker Infrastructure - Main Compose File
+# =============================================================================
+# This file stitches together all service stacks into a unified deployment.
+# Each stack is defined in its own file under compose/ for maintainability.
+#
+# Usage:
+#   docker compose up -d                    # Start all services
+#   docker compose up -d databases          # Start only databases
+#   docker compose down                     # Stop everything
+#   docker compose ps                       # List running services
+# =============================================================================
+
+name: ${COMPOSE_PROJECT_NAME:-infrastructure}
+
+include:
+  - compose/databases.yml
+  - compose/databases-ui.yml
+  - compose/messaging.yml
+  - compose/storage.yml
+  - compose/mail.yml
+  - compose/monitoring.yml
+  - compose/proxy.yml
+  - compose/security.yml
+  - compose/management.yml
+  - compose/cicd.yml
+
+networks:
+  frontend_network:
+    name: frontend_network
+    driver: bridge
+    attachable: true
+    external: false
+
+  backend_network:
+    name: backend_network
+    driver: bridge
+    internal: ${PRODUCTION:-false}
+    attachable: true
+    external: false
+
+  monitoring_network:
+    name: monitoring_network
+    driver: bridge
+    attachable: true
+    external: false
+
+  mail_network:
+    name: mail_network
+    driver: bridge
+    attachable: true
+    external: false
+
+volumes:
+  mysql_data:
+    name: mysql_data
+    external: false
+  postgres_data:
+    name: postgres_data
+    external: false
+  mongo_data:
+    name: mongo_data
+    external: false
+  redis_data:
+    name: redis_data
+    external: false
+  pgadmin_data:
+    name: pgadmin_data
+    external: false
+  redisinsight_data:
+    name: redisinsight_data
+    external: false
+  rabbitmq_data:
+    name: rabbitmq_data
+    external: false
+  minio_data:
+    name: minio_data
+    external: false
+  nginx_proxy_data:
+    name: nginx_proxy_data
+    external: false
+  nginx_proxy_ssl:
+    name: nginx_proxy_ssl
+    external: false
+  prometheus_data:
+    name: prometheus_data
+    external: false
+  grafana_data:
+    name: grafana_data
+    external: false
+  loki_data:
+    name: loki_data
+    external: false
+  netdata_data:
+    name: netdata_data
+    external: false
+  crowdsec_config_data:
+    name: crowdsec_config_data
+    external: false
+  crowdsec_log_data:
+    name: crowdsec_log_data
+    external: false
+  uptime_kuma_data:
+    name: uptime_kuma_data
+    external: false
+  jenkins_home:
+    name: jenkins_home
+    external: false
+  arcane_data:
+    name: arcane_data
+    external: false
+  postfix_spool_data:
+    name: postfix_spool_data
+    external: false
+  postfix_config_data:
+    name: postfix_config_data
+    external: false

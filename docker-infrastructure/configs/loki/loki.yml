@@ -1,0 +1,57 @@
+# =============================================================================
+# Loki Configuration
+# =============================================================================
+# Production-ready Loki configuration with persistent storage and retention.
+# =============================================================================
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+
+common:
+  path_prefix: /loki
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+limits_config:
+  ingestion_rate_mb: 10
+  ingestion_burst_size_mb: 20
+  max_entries_limit_per_query: 5000
+
+ingester:
+  wal:
+    dir: /loki/wal
+  chunk_idle_period: 30m
+  max_chunk_age: 1h
+  chunk_retain_period: 5m
+  flush_check_period: 30s
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+    shared_store: filesystem
+  filesystem:
+    directory: /loki/chunks
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem
+
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 720h
+
+chunk_store_config:
+  max_look_back_period: 720h
+
+analytics:
+  reporting_enabled: false

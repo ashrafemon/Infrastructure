@@ -1,0 +1,56 @@
+# =============================================================================
+# Object Storage
+# =============================================================================
+# MinIO - S3-Compatible Object Storage
+# =============================================================================
+
+services:
+  minio:
+    image: minio/minio:RELEASE.2025-06-13T11-33-47Z
+    container_name: minio
+    restart: unless-stopped
+    networks:
+      - backend_network
+      - frontend_network
+    ports:
+      - "${DB_BIND_ADDRESS}9000:9000"
+      - "${DB_BIND_ADDRESS}9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?err}
+      MINIO_DOMAIN: storage.example.com
+      MINIO_SERVER_URL: http://localhost:9000
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
+      TZ: ${TZ:-UTC}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

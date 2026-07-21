@@ -1,0 +1,101 @@
+# =============================================================================
+# Management Services  (profile: production)
+# =============================================================================
+# Arcane 1.10  |  Watchtower 1.7  |  Vault 1.19
+#
+# Starts only with: docker compose --profile production up -d
+# =============================================================================
+
+services:
+  arcane:
+    profiles: ["production"]
+    image: ghcr.io/getarcaneapp/manager:1.10.0
+    container_name: arcane
+    restart: unless-stopped
+    networks:
+      - frontend_network
+    ports:
+      - "127.0.0.1:3552:3552"
+    environment:
+      TZ: ${TZ:-UTC}
+    volumes:
+      - arcane_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3552/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  watchtower:
+    profiles: ["production"]
+    image: containrrr/watchtower:1.7.1
+    container_name: watchtower
+    restart: unless-stopped
+    networks:
+      - frontend_network
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "false"
+      WATCHTOWER_REVIVE_STOPPED: "false"
+      WATCHTOWER_SCHEDULE: "0 0 4 * * *"
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_MONITOR_ONLY: "false"
+      WATCHTOWER_TIMEOUT: "120s"
+      WATCHTOWER_DEBUG: "false"
+      WATCHTOWER_WARN_ON_HEAD_FAILURE: "true"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "watchtower", "--healthcheck"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

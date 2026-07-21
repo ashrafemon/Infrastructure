@@ -1,0 +1,58 @@
+# =============================================================================
+# CI/CD Services  (profile: production)
+# =============================================================================
+# Jenkins 2.504 LTS - Automation server
+#
+# Starts only with: docker compose --profile production up -d
+# =============================================================================
+
+services:
+  jenkins:
+    profiles: ["production"]
+    image: jenkins/jenkins:2.504.1-lts-jdk21
+    container_name: jenkins
+    restart: unless-stopped
+    networks:
+      - frontend_network
+      - backend_network
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:50000:50000"
+    environment:
+      JAVA_OPTS: >-
+        -Djenkins.install.runSetupWizard=true
+        -Xms1024m -Xmx2048m
+      JENKINS_OPTS: --prefix=/
+      JENKINS_HOME: /var/jenkins_home
+      TZ: ${TZ:-UTC}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

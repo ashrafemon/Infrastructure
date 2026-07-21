@@ -1,0 +1,127 @@
+# =============================================================================
+# Email Services
+# =============================================================================
+# Profile-based: choose one based on your environment.
+#
+#   docker compose --profile production up -d    # Postfix (production SMTP)
+#   docker compose --profile development up -d   # Mailpit (dev SMTP capture)
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Postfix - Production SMTP relay (profile: production)
+  # ---------------------------------------------------------------------------
+  postfix:
+    profiles: ["production"]
+    image: boky/postfix:v3.7.0
+    container_name: postfix
+    restart: unless-stopped
+    networks:
+      - mail_network
+      - backend_network
+    ports:
+      - "25:25"
+      - "587:587"
+      - "465:465"
+    environment:
+      POSTFIX_HOSTNAME: ${POSTFIX_HOSTNAME:-mail.example.com}
+      POSTFIX_DOMAIN: ${POSTFIX_DOMAIN:-example.com}
+      POSTFIX_RELAYHOST: ${POSTFIX_RELAYHOST:-}
+      SMTP_USER: ${POSTFIX_SMTP_USER:-}
+      SMTP_PASSWORD: ${POSTFIX_SMTP_PASSWORD:-}
+      SMTP_TLS: ${POSTFIX_TLS:-yes}
+      MESSAGE_SIZE_LIMIT: ${POSTFIX_MESSAGE_SIZE:-52428800}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - postfix_spool_data:/var/spool/postfix
+      - postfix_config_data:/etc/postfix
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "postfix status || postfix start"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Mailpit - Development SMTP capture server (profile: development)
+  # ---------------------------------------------------------------------------
+  mailpit:
+    profiles: ["development"]
+    image: axllent/mailpit:v1.21
+    container_name: mailpit
+    restart: unless-stopped
+    networks:
+      - mail_network
+      - backend_network
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_MAX_MESSAGES: 5000
+      MP_DATA_FILE: /data/mailpit.db
+      MP_UI_UPLOAD_LIMIT: 50
+      TZ: ${TZ:-UTC}
+    volumes:
+      - mailpit_data:/data
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8025/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postfix_spool_data:
+    name: postfix_spool_data
+  postfix_config_data:
+    name: postfix_config_data
+  mailpit_data:
+    name: mailpit_data

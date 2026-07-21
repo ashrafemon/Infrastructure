@@ -1,0 +1,67 @@
+# =============================================================================
+# Prometheus Configuration
+# =============================================================================
+# Global defaults and scrape targets for the infrastructure stack.
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+      scheme: http
+      timeout: 10s
+
+rule_files:
+  - "alerts/*.yml"
+
+scrape_configs:
+  # Self-monitoring
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Docker engine metrics (requires docker daemon metrics enabled)
+  - job_name: docker
+    static_configs:
+      - targets: ["host.docker.internal:9323"]
+
+  # Node metrics (requires node_exporter on the host)
+  - job_name: node
+    static_configs:
+      - targets: ["host.docker.internal:9100"]
+
+  # cAdvisor metrics (for fine-grained container metrics)
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+
+  # MySQL exporter (optional - deploy separately)
+  - job_name: mysql
+    static_configs:
+      - targets: ["mysql_exporter:9104"]
+
+  # PostgreSQL exporter (optional - deploy separately)
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres_exporter:9187"]
+
+  # Redis exporter (optional - deploy separately)
+  - job_name: redis
+    static_configs:
+      - targets: ["redis_exporter:9121"]
+
+  # RabbitMQ exporter (optional - deploy separately)
+  - job_name: rabbitmq
+    static_configs:
+      - targets: ["rabbitmq_exporter:9419"]
+
+  # MinIO metrics
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ["minio:9000"]

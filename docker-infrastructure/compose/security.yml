@@ -1,0 +1,112 @@
+# =============================================================================
+# Security & Availability  (profile: production)
+# =============================================================================
+# CrowdSec 1.6  |  Uptime Kuma 1.23
+#
+# Starts only with: docker compose --profile production up -d
+# =============================================================================
+
+services:
+  crowdsec:
+    profiles: ["production"]
+    image: crowdsecurity/crowdsec:v1.6.8
+    container_name: crowdsec
+    restart: unless-stopped
+    networks:
+      - frontend_network
+      - backend_network
+    environment:
+      COLLECTIONS: "crowdsecurity/nginx crowdsecurity/linux crowdsecurity/http-cve"
+      CUSTOM_HOSTNAME: ${HOSTNAME:-infra-host}
+      ENROLL_INSTANCE_NAME: ${HOSTNAME:-infra-instance}
+      ENROLL_KEY: ${CROWDSEC_ENROLL_KEY:-}
+      GID: "${GID:-1000}"
+      UID: "${UID:-1000}"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - crowdsec_config_data:/etc/crowdsec
+      - crowdsec_log_data:/var/log/crowdsec
+      - /var/log/nginx:/var/log/nginx:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - IPC_LOCK
+      - NET_ADMIN
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETGID
+      - SETUID
+      - SYS_ADMIN
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "cscli", "metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  uptime-kuma:
+    profiles: ["production"]
+    image: louislam/uptime-kuma:1.23.16
+    container_name: uptime-kuma
+    restart: unless-stopped
+    networks:
+      - frontend_network
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      TZ: ${TZ:-UTC}
+    volumes:
+      - uptime_kuma_data:/app/data
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "node", "extra/healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  crowdsec_config_data:
+    name: crowdsec_config_data
+  crowdsec_log_data:
+    name: crowdsec_log_data

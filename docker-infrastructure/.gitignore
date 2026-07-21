@@ -1,0 +1,20 @@
+# Environment
+.env
+
+# Local Docker Compose override (personal dev config)
+docker-compose.override.yml
+
+
+
+# Backups
+backups/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
