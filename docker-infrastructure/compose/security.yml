@@ -42,14 +42,6 @@ services:
       - SYS_ADMIN
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     healthcheck:
       test: ["CMD", "cscli", "metrics"]
       interval: 30s
@@ -85,14 +77,6 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     healthcheck:
       test: ["CMD", "node", "extra/healthcheck.js"]
       interval: 30s

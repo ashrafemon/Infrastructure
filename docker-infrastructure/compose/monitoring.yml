@@ -39,14 +39,6 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
       interval: 30s
@@ -92,14 +84,6 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
@@ -135,14 +119,6 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/ready"]
       interval: 30s
@@ -182,14 +158,6 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9080/ready"]
       interval: 30s
@@ -232,14 +200,6 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor:unconfined
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:19999/api/v1/info"]
       interval: 30s
