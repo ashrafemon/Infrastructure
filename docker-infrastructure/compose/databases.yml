@@ -19,9 +19,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
       MYSQL_PWD: ${MYSQL_ROOT_PASSWORD:?err}
+      REPLICATION_USER: ${REPLICATION_USER:-replicator}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
       TZ: ${TZ:-UTC}
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./configs/mysql/conf.d/master.cnf:/etc/mysql/conf.d/master.cnf:ro
+      - ./scripts/mysql/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh:ro
     cap_drop:
       - ALL
     cap_add:
@@ -32,6 +36,51 @@ services:
       - NET_BIND_SERVICE
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # MySQL Replica - Read-only replica for read scaling
+  # ---------------------------------------------------------------------------
+  mysql-replica:
+    image: mysql:8.0.41
+    container_name: mysql-replica
+    restart: unless-stopped
+    networks:
+      - backend_network
+    ports:
+      - "${DB_BIND_ADDRESS}3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
+      MYSQL_PWD: ${MYSQL_ROOT_PASSWORD:?err}
+      REPLICATION_USER: ${REPLICATION_USER:-replicator}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - mysql_replica_data:/var/lib/mysql
+      - ./configs/mysql/conf.d/replica.cnf:/etc/mysql/conf.d/replica.cnf:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      mysql:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
       interval: 30s
@@ -57,9 +106,13 @@ services:
       - "${DB_BIND_ADDRESS}5432:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+      REPLICATION_USER: ${REPLICATION_USER:-replicator}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
       TZ: ${TZ:-UTC}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./configs/postgres/primary.conf:/etc/postgresql/conf.d/primary.conf:ro
+      - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     cap_drop:
       - ALL
     cap_add:
@@ -76,6 +129,50 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Replica - Hot standby for read scaling
+  # ---------------------------------------------------------------------------
+  postgres-replica:
+    image: postgres:18.4
+    container_name: postgres-replica
+    restart: unless-stopped
+    networks:
+      - backend_network
+    ports:
+      - "${DB_BIND_ADDRESS}5433:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+      REPLICATION_USER: ${REPLICATION_USER:-replicator}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - ./configs/postgres/standby.conf:/etc/postgresql/conf.d/standby.conf:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     logging:
       driver: json-file
       options:

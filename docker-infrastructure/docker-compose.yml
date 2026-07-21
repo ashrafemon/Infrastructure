@@ -64,6 +64,12 @@ volumes:
   redis_data:
     name: redis_data
     external: false
+  mysql_replica_data:
+    name: mysql_replica_data
+    external: false
+  postgres_replica_data:
+    name: postgres_replica_data
+    external: false
   pgadmin_data:
     name: pgadmin_data
     external: false
