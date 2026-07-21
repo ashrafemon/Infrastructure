@@ -45,14 +45,14 @@ Production-ready Docker Compose infrastructure for Laravel, NestJS, NextJS, Reac
 │                            mail_network                                  │
 │                                                                          │
 │  ┌────────────────────────────────────┐                                 │
-│  │            Postfix                 │                                 │
+│  │            Mailpit                │                                 │
 │  │     SMTP Relay / Outbound Mail     │                                 │
 │  │      25 (SMTP)  587 (Submission)   │                                 │
 │  │      465 (SMTPS)                   │                                 │
 │  └────────────────────────────────────┘                                 │
 └──────────────────────────────────────────────────────────────────────────┘
 
-> **Profile note:** Monitoring, security, CI/CD, management stack and Postfix require `--profile production`.
+> **Profile note:** Monitoring, security, CI/CD and management stack require `--profile production`.
 > Mailpit (dev email capture) requires `--profile development`.
 > Core services (databases, proxy, storage, messaging) start without any profile.
 
@@ -86,7 +86,7 @@ Regenerate a single password later (if compromised):
 docker compose --profile development up -d
 ```
 
-**Production** — full stack with monitoring, security, CI/CD, Postfix:
+**Production** — full stack with monitoring, security, CI/CD:
 ```bash
 docker compose --profile production up -d
 ```
@@ -111,7 +111,7 @@ docker compose --profile production up -d jenkins
 
 # App backend (if apps need queue + storage + email)
 docker compose up -d mysql redis rabbitmq minio \
-  && docker compose --profile production up -d postfix
+
 
 # Full web server (proxy + all management UIs)
 docker compose up -d nginx-proxy-manager phpmyadmin pgadmin redisinsight
@@ -133,7 +133,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 | Access NPM | `http://YOUR_IP:81` (admin@example.com / changeme) | [cloudflare-ssl.md](docs/cloudflare-ssl.md) |
 | Bind subdomains | Create proxy hosts in NPM for each service | [cloudflare-ssl.md](docs/cloudflare-ssl.md) |
 | Create databases | Use phpMyAdmin (`:8081`) or pgAdmin (`:5050`) | — |
-| Configure email | Set Postfix relay or use Mailpit UI (`:8025`) | [postfix.md](docs/postfix.md) |
+| Email (dev) | Use Mailpit UI at `:8025` | — |
 | Connect backend apps | Read credentials from `.env` or Docker network | — |
 | Schedule backups | Add cron job for `./scripts/backup/backup.sh` | [backup.md](docs/backup.md) |
 | Hardening | Firewall, CrowdSec bouncers, Grafana alerts | [security.md](docs/security.md) |
@@ -170,8 +170,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 ### Email (`compose/mail.yml`)
 | Service       | Profile       | Version | Ports          | Description                           |
 |---------------|---------------|---------|----------------|---------------------------------------|
-| Postfix       | production    | v3.7.0  | 25 / 587 / 465 | Production SMTP relay                 |
-| Mailpit       | development   | v1.21   | 1025 / 8025    | Development SMTP capture + web UI     |
+| Mailpit       | development   | v1.21   | 1025 / 8025    | SMTP capture + web UI (dev only)     |
 
 ### Monitoring (`compose/monitoring.yml`) — profile: production
 | Service   | Version | Ports  | Description                          |
@@ -212,7 +211,7 @@ Services are organized into profiles — start only what you need:
 |---------|----------|---------|
 | _(none)_ | mysql, postgres, mongo, redis, phpmyadmin, pgadmin, redisinsight, rabbitmq, minio, nginx-proxy-manager | `docker compose up -d` |
 | **development** | _(above)_ + mailpit | `docker compose --profile development up -d` |
-| **production** | _(above)_ + postfix, prometheus, grafana, loki, promtail, netdata, crowdsec, uptime-kuma, jenkins, arcane, watchtower | `docker compose --profile production up -d` |
+| **production** | _(above)_ + prometheus, grafana, loki, promtail, netdata, crowdsec, uptime-kuma, jenkins, arcane, watchtower | `docker compose --profile production up -d` |
 
 Services without a profile always start. Multiple profiles can be combined:
 ```bash
@@ -230,7 +229,7 @@ The `backend_network` is internal — containers on it cannot reach the internet
 | frontend_network   | bridge | No / No             | Public-facing services, proxy              |
 | backend_network    | bridge | **Yes**             | Databases, message broker, internal services|
 | monitoring_network | bridge | No / No             | Prometheus, Grafana, Loki, Netdata         |
-| mail_network       | bridge | No / No             | Email services                             |
+| mail_network       | bridge | No                  | Email services                             |
 
 
 
@@ -259,8 +258,6 @@ All data is persisted in Docker volumes (named, not host bind mounts):
 | uptime_kuma_data     | Uptime Kuma                    |
 | jenkins_home         | Jenkins                        |
 | arcane_data          | Arcane                         |
-| postfix_spool_data   | Postfix (spool)                |
-| postfix_config_data  | Postfix (config)               |
 | mailpit_data         | Mailpit (dev only)             |
 | mysql_replica_data   | MySQL Replica                  |
 | postgres_replica_data | PostgreSQL Replica            |
@@ -466,22 +463,7 @@ com.centurylinklabs.watchtower.enable: "true"
 
 ## Email
 
-Two options, selected by profile:
-
-### Production: Postfix (`--profile production`)
-
-Lightweight SMTP relay/outbound mail server. Send directly or relay through SendGrid, Mailgun, AWS SES.
-
-```bash
-POSTFIX_HOSTNAME=mail.yourdomain.com
-POSTFIX_RELAYHOST=smtp.sendgrid.net:587
-POSTFIX_SMTP_USER=apikey
-POSTFIX_SMTP_PASSWORD=<your-key>
-```
-
-See [docs/postfix.md](docs/postfix.md).
-
-### Development: Mailpit (`--profile development`)
+#### Mailpit (`--profile development`)
 
 SMTP capture server — intercepts all outgoing email and displays them in a web UI at `http://localhost:8025`. No real emails are sent.
 
@@ -521,7 +503,7 @@ Before going live, verify each:
 - [ ] **Backups** — cron job set for `./scripts/backup/backup.sh`
 - [ ] **Off-site backups** — rsync/rclone to remote storage
 - [ ] **Grafana alerts** — configured for CPU, disk, service health
-- [ ] **Postfix DNS** — SPF, DKIM, reverse PTR records set
+
 - [ ] **Health checks** — `./scripts/health-check/health-check.sh` shows all green
 - [ ] **Log shipping** — Grafana → Explore → Loki shows container logs
 - [ ] **Docker metrics** — daemon flag `--metrics-addr 0.0.0.0:9323` enabled

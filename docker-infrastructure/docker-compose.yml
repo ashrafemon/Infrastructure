@@ -115,9 +115,4 @@ volumes:
   arcane_data:
     name: arcane_data
     external: false
-  postfix_spool_data:
-    name: postfix_spool_data
-    external: false
-  postfix_config_data:
-    name: postfix_config_data
-    external: false
+
