@@ -6,10 +6,10 @@
 
 services:
   # ---------------------------------------------------------------------------
-  # MySQL 8.0.41 - Primary relational database
+  # MySQL 8.0.46 - Primary relational database
   # ---------------------------------------------------------------------------
   mysql:
-    image: mysql:8.0.41
+    image: mysql:8.0.46
     container_name: mysql
     restart: unless-stopped
     networks:
@@ -52,7 +52,7 @@ services:
   # MySQL Replica - Read-only replica for read scaling
   # ---------------------------------------------------------------------------
   mysql-replica:
-    image: mysql:8.0.41
+    image: mysql:8.0.46
     container_name: mysql-replica
     restart: unless-stopped
     networks:

@@ -1,7 +1,7 @@
 # =============================================================================
 # Reverse Proxy
 # =============================================================================
-# Nginx Proxy Manager 2.12 - SSL termination and reverse proxy
+# Nginx Proxy Manager 2.15.1 - SSL termination and reverse proxy
 #
 # Cloudflare SSL:
 #   NPM supports Cloudflare DNS-01 challenge for wildcard certificates.
@@ -12,7 +12,7 @@
 
 services:
   nginx-proxy-manager:
-    image: jc21/nginx-proxy-manager:2.12.3
+    image: jc21/nginx-proxy-manager:2.15.1
     container_name: nginx-proxy-manager
     restart: unless-stopped
     networks:
