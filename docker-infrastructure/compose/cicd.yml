@@ -1,7 +1,7 @@
 # =============================================================================
 # CI/CD Services  (profile: production)
 # =============================================================================
-# Jenkins 2.504 LTS - Automation server
+# Jenkins LTS - Automation server
 #
 # Starts only with: docker compose --profile production up -d
 # =============================================================================
@@ -27,16 +27,7 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
       interval: 30s

@@ -7,6 +7,9 @@
 # =============================================================================
 
 services:
+  # ---------------------------------------------------------------------------
+  # Arcane - Docker Management UI
+  # ---------------------------------------------------------------------------
   arcane:
     profiles: ["production"]
     image: ghcr.io/getarcaneapp/manager:latest
@@ -25,16 +28,6 @@ services:
     volumes:
       - arcane_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3552/health"]
       interval: 30s
@@ -47,6 +40,9 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ---------------------------------------------------------------------------
+  # Watchtower - Container Update Automation
+  # ---------------------------------------------------------------------------
   watchtower:
     profiles: ["production"]
     image: containrrr/watchtower:1.7.1
@@ -67,15 +63,6 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "watchtower", "--healthcheck"]
       interval: 60s

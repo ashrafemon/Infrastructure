@@ -9,7 +9,7 @@
 
 services:
   # ---------------------------------------------------------------------------
-  # Mailpit - Development SMTP capture server (profile: development)
+  # Mailpit - Development SMTP capture server
   # ---------------------------------------------------------------------------
   mailpit:
     profiles: ["development"]
@@ -31,16 +31,6 @@ services:
       TZ: ${TZ:-UTC}
     volumes:
       - mailpit_data:/data
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8025/healthz"]
       interval: 30s
@@ -52,7 +42,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-volumes:
-  mailpit_data:
-    name: mailpit_data

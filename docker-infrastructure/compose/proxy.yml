@@ -12,7 +12,7 @@
 
 services:
   nginx-proxy-manager:
-    image: jc21/nginx-proxy-manager
+    image: jc21/nginx-proxy-manager:latest
     container_name: nginx-proxy-manager
     restart: unless-stopped
     networks:
@@ -29,16 +29,6 @@ services:
     volumes:
       - nginx_proxy_data:/data
       - nginx_proxy_ssl:/etc/letsencrypt
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:81/login"]
       interval: 30s

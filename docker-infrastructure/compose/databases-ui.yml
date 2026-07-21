@@ -1,7 +1,7 @@
 # =============================================================================
 # Database Management UI
 # =============================================================================
-# phpMyAdmin 5.2  |  pgAdmin 4  |  RedisInsight 2.70
+# phpMyAdmin 5.2.2  |  pgAdmin 4.9.6  |  RedisInsight 2.70
 # =============================================================================
 # Access these UIs via SSH tunnel or Nginx Proxy Manager (SSL).
 # Never expose management UIs directly to the internet.
@@ -28,16 +28,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
@@ -70,16 +60,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/login"]
       interval: 30s
@@ -108,16 +88,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5540/healthcheck"]
       interval: 30s

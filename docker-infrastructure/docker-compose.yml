@@ -76,6 +76,9 @@ volumes:
   redisinsight_data:
     name: redisinsight_data
     external: false
+  mailpit_data:
+    name: mailpit_data
+    external: false
   rabbitmq_data:
     name: rabbitmq_data
     external: false
@@ -113,4 +116,3 @@ volumes:
   arcane_data:
     name: arcane_data
     external: false
-

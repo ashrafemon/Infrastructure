@@ -7,6 +7,9 @@
 # =============================================================================
 
 services:
+  # ---------------------------------------------------------------------------
+  # CrowdSec - Intrusion prevention engine
+  # ---------------------------------------------------------------------------
   crowdsec:
     profiles: ["production"]
     image: crowdsecurity/crowdsec:v1.6.8
@@ -20,28 +23,12 @@ services:
       CUSTOM_HOSTNAME: ${HOSTNAME:-infra-host}
       ENROLL_INSTANCE_NAME: ${HOSTNAME:-infra-instance}
       ENROLL_KEY: ${CROWDSEC_ENROLL_KEY:-}
-      GID: "${GID:-1000}"
-      UID: "${UID:-1000}"
       TZ: ${TZ:-UTC}
     volumes:
       - crowdsec_config_data:/etc/crowdsec
       - crowdsec_log_data:/var/log/crowdsec
       - /var/log/nginx:/var/log/nginx:ro
       - /var/log/auth.log:/var/log/auth.log:ro
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - IPC_LOCK
-      - NET_ADMIN
-      - NET_BIND_SERVICE
-      - NET_RAW
-      - SETGID
-      - SETUID
-      - SYS_ADMIN
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "cscli", "metrics"]
       interval: 30s
@@ -54,6 +41,9 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ---------------------------------------------------------------------------
+  # Uptime Kuma - Monitoring dashboard
+  # ---------------------------------------------------------------------------
   uptime-kuma:
     profiles: ["production"]
     image: louislam/uptime-kuma:2.4.0
@@ -63,21 +53,10 @@ services:
       - frontend_network
     ports:
       - "3001:3001"
-    user: root
     environment:
       TZ: ${TZ:-UTC}
     volumes:
       - uptime_kuma_data:/app/data
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - NET_BIND_SERVICE
-      - SETGID
-      - SETUID
-    security_opt:
-      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "node", "server/server.js", "--health"]
       interval: 30s
@@ -89,5 +68,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-
