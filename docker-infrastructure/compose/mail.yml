@@ -13,7 +13,7 @@ services:
   # ---------------------------------------------------------------------------
   postfix:
     profiles: ["production"]
-    image: boky/postfix:v3.7.1
+    image: boky/postfix:v5.1.0-alpine
     container_name: postfix
     restart: unless-stopped
     networks:
@@ -29,8 +29,10 @@ services:
       POSTFIX_RELAYHOST: ${POSTFIX_RELAYHOST:-}
       SMTP_USER: ${POSTFIX_SMTP_USER:-}
       SMTP_PASSWORD: ${POSTFIX_SMTP_PASSWORD:-}
-      SMTP_TLS: ${POSTFIX_TLS:-yes}
+      SMTP_USE_TLS: ${POSTFIX_TLS:-yes}
+      SMTP_PORT: "587"
       MESSAGE_SIZE_LIMIT: ${POSTFIX_MESSAGE_SIZE:-52428800}
+      SMTP_SASL_SECURITY_OPTIONS: noanonymous
       TZ: ${TZ:-UTC}
     volumes:
       - postfix_spool_data:/var/spool/postfix
@@ -46,11 +48,11 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "postfix status || postfix start"]
+      test: ["CMD", "postfix", "status"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 15s
     logging:
       driver: json-file
       options:
