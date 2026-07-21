@@ -11,6 +11,8 @@ services:
     restart: unless-stopped
     networks:
       - backend_network
+    ports:
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?err}
