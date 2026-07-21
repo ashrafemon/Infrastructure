@@ -10,6 +10,7 @@ services:
     container_name: rabbitmq
     restart: unless-stopped
     networks:
+      - frontend_network
       - backend_network
     ports:
       - "15672:15672"
