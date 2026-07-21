@@ -23,8 +23,6 @@ services:
     volumes:
       - arcane_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc:/proc:ro
-      - /sys:/sys:ro
     cap_drop:
       - ALL
     cap_add:
