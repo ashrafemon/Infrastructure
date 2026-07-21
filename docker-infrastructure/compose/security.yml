@@ -62,7 +62,7 @@ services:
     networks:
       - frontend_network
     ports:
-      - "127.0.0.1:3001:3001"
+      - "${DB_BIND_ADDRESS}3001:3001"
     environment:
       TZ: ${TZ:-UTC}
     volumes:

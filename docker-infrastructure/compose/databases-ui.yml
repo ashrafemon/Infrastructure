@@ -16,7 +16,7 @@ services:
       - frontend_network
       - backend_network
     ports:
-      - "127.0.0.1:8081:80"
+      - "${DB_BIND_ADDRESS}8081:80"
     environment:
       PMA_HOST: ${PMA_HOST:-mysql}
       PMA_PORT: ${PMA_PORT:-3306}
@@ -58,7 +58,7 @@ services:
       - frontend_network
       - backend_network
     ports:
-      - "127.0.0.1:5050:80"
+      - "${DB_BIND_ADDRESS}5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?err}
@@ -100,7 +100,7 @@ services:
       - frontend_network
       - backend_network
     ports:
-      - "127.0.0.1:5540:5540"
+      - "${DB_BIND_ADDRESS}5540:5540"
     environment:
       TZ: ${TZ:-UTC}
     volumes:
