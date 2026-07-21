@@ -103,9 +103,5 @@ services:
         max-file: "3"
 
 volumes:
-  postfix_spool_data:
-    name: postfix_spool_data
-  postfix_config_data:
-    name: postfix_config_data
   mailpit_data:
     name: mailpit_data

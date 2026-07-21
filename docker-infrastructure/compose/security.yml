@@ -89,8 +89,4 @@ services:
         max-size: "10m"
         max-file: "3"
 
-volumes:
-  crowdsec_config_data:
-    name: crowdsec_config_data
-  crowdsec_log_data:
-    name: crowdsec_log_data
+
