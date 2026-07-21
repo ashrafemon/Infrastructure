@@ -98,7 +98,34 @@ docker compose --profile production up -d
 
 
 
-### 4. Verify Health
+### 4. Start Only What You Need
+
+```bash
+# Database server (master + replicas + management UIs)
+docker compose up -d mysql mysql-replica postgres postgres-replica \
+  mongo redis phpmyadmin pgadmin redisinsight
+
+# Monitoring server
+docker compose --profile production up -d prometheus grafana loki promtail netdata
+
+# Security server
+docker compose --profile production up -d crowdsec uptime-kuma
+
+# CI/CD server
+docker compose --profile production up -d jenkins
+
+# App backend (if apps need queue + storage + email)
+docker compose up -d mysql redis rabbitmq minio \
+  && docker compose --profile production up -d postfix
+
+# Full web server (proxy + all management UIs)
+docker compose up -d nginx-proxy-manager phpmyadmin pgadmin redisinsight
+
+# Minimal production (databases + proxy + queue)
+docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq minio
+```
+
+### 5. Verify Health
 
 ```bash
 ./scripts/health-check/health-check.sh
