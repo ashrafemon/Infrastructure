@@ -8,8 +8,12 @@
 
 set -euo pipefail
 
-PG_DATA="/var/lib/postgresql/data"
 export PGPASSWORD="${REPLICATION_PASSWORD:?err}"
+
+# Find the PostgreSQL data directory
+# Postgres 18+ uses major-version-specific dirs under /var/lib/postgresql
+PG_BASE="/var/lib/postgresql"
+PG_DATA=$(ls -d "$PG_BASE"/*/main 2>/dev/null || echo "$PG_BASE/18/main")
 
 # Only run if data directory is empty (first start)
 if [ -f "$PG_DATA/PG_VERSION" ]; then
@@ -27,18 +31,12 @@ for i in $(seq 1 60); do
   sleep 2
 done
 
-rm -rf "$PG_DATA"/* 2>/dev/null || true
+rm -rf "$PG_BASE"/* 2>/dev/null || true
+mkdir -p "$PG_DATA"
+
 pg_basebackup -h postgres -D "$PG_DATA" -U "${REPLICATION_USER:-replicator}" \
   -v -P --wal-method=stream --slot=replica_slot 2>&1
 
-# Create standby signal file
 touch "$PG_DATA/standby.signal"
 
-# Add connection info to postgresql.conf
-cat >> "$PG_DATA/postgresql.conf" <<-EOCONF
-  primary_conninfo = 'host=postgres port=5432 user=${REPLICATION_USER:-replicator} password=${REPLICATION_PASSWORD:?err} application_name=postgres-replica'
-  primary_slot_name = 'replica_slot'
-  hot_standby = on
-EOCONF
-
-echo "PostgreSQL standby initialized. Data cloned from primary."
+echo "PostgreSQL standby initialized."
