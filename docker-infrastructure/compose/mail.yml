@@ -13,7 +13,7 @@ services:
   # ---------------------------------------------------------------------------
   postfix:
     profiles: ["production"]
-    image: boky/postfix:v3.7.0
+    image: boky/postfix:v3.7.1
     container_name: postfix
     restart: unless-stopped
     networks:
