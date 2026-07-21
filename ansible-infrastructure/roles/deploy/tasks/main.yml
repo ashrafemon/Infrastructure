@@ -1,0 +1,50 @@
+---
+# =============================================================================
+# Deploy docker-infrastructure stack
+# =============================================================================
+
+- name: Sync docker-infrastructure files to server
+  synchronize:
+    src: "{{ playbook_dir }}/../../docker-infrastructure/"
+    dest: "{{ infra_dir }}/"
+    delete: true
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.env"
+      - "--exclude=backups"
+
+- name: Ensure backup directory exists
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Set correct permissions on scripts
+  file:
+    path: "{{ infra_dir }}/scripts"
+    state: directory
+    recurse: true
+    mode: '0755'
+
+- name: Pull latest images
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_dir }}"
+    pull: always
+    env_file: "{{ infra_dir }}/.env"
+
+- name: Deploy stack with profile
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_dir }}"
+    files:
+      - docker-compose.yml
+    env_file: "{{ infra_dir }}/.env"
+    profiles: "{{ deploy_profile }}"
+    state: present
+    recreate: always
+    remove_orphans: true
+  register: deploy_result
+
+- name: Show deployed services
+  debug:
+    msg: "Deployed {{ deploy_profile }} profile — {{ deploy_result.containers | length }} containers"
+  when: deploy_result.containers is defined

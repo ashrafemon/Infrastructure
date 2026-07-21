@@ -1,0 +1,34 @@
+---
+# =============================================================================
+# Run health checks and report status
+# =============================================================================
+
+- name: Run health check script
+  script: "{{ infra_dir }}/scripts/health-check/health-check.sh --json"
+  register: health_result
+  changed_when: false
+  ignore_errors: true
+
+- name: Parse health results
+  set_fact:
+    health_data: "{{ health_result.stdout | from_json }}"
+
+- name: Report failed services
+  debug:
+    msg: >-
+      FAILED: {{ item.service }} (status: {{ item.status }})
+  loop: "{{ health_data.services }}"
+  when: not item.healthy
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: Summary
+  debug:
+    msg: >-
+      {{ health_data.services | selectattr('healthy', 'equalto', true) | list | length }}
+      / {{ health_data.services | length }} services healthy
+
+- name: Fail playbook if any service unhealthy
+  fail:
+    msg: "Health check failed — {{ health_data.services | rejectattr('healthy', 'equalto', true) | map(attribute='service') | join(', ') }}"
+  when: health_data.services | rejectattr('healthy', 'equalto', true) | list | length > 0

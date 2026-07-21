@@ -1,0 +1,48 @@
+---
+# =============================================================================
+# Configure UFW firewall for production
+# =============================================================================
+
+- name: Install UFW
+  apt:
+    name: ufw
+    state: present
+
+- name: Set default policies
+  ufw:
+    direction: "{{ item }}"
+    policy: deny
+  loop:
+    - incoming
+    - outgoing
+
+- name: Allow SSH
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Allow HTTP/HTTPS
+  ufw:
+    rule: allow
+    port: '{{ item }}'
+    proto: tcp
+  loop:
+    - '80'
+    - '443'
+
+- name: Allow SMTP (production only)
+  ufw:
+    rule: allow
+    port: '{{ item }}'
+    proto: tcp
+  loop:
+    - '25'
+    - '587'
+    - '465'
+  when: deploy_profile == 'production'
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    logging: 'on'

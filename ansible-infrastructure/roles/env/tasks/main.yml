@@ -1,0 +1,22 @@
+---
+# =============================================================================
+# Deploy .env file from Ansible vault or variables
+# =============================================================================
+
+- name: Ensure infra directory exists
+  file:
+    path: "{{ infra_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Deploy .env from template
+  template:
+    src: .env.j2
+    dest: "{{ infra_dir }}/.env"
+    mode: '0600'
+  register: env_file
+
+- name: Warn if .env changed
+  debug:
+    msg: ".env updated — run deploy playbook to apply"
+  when: env_file.changed

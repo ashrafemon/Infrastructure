@@ -1,0 +1,33 @@
+---
+# =============================================================================
+# Run Manual Backup
+# =============================================================================
+# Usage:
+#   ansible-playbook playbooks/backup.yml
+# =============================================================================
+
+- name: Run backup
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Execute backup script
+      command: "{{ infra_dir }}/scripts/backup/backup.sh"
+      args:
+        chdir: "{{ infra_dir }}"
+      register: backup_result
+
+    - name: Show backup output
+      debug:
+        var: backup_result.stdout_lines
+
+    - name: List backup files
+      find:
+        paths: "{{ backup_dir }}"
+        patterns: "*.gz"
+        age: "-1d"
+      register: backup_files
+
+    - name: Recent backups
+      debug:
+        msg: "{{ backup_files.files | map(attribute='path') | list }}"

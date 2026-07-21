@@ -1,0 +1,23 @@
+---
+# =============================================================================
+# Ansible Vault — Secrets
+# =============================================================================
+# Encrypt with: ansible-vault encrypt group_vars/vault.yml
+# Edit with:    ansible-vault edit group_vars/vault.yml
+#
+# Generate passwords:
+#   openssl rand -base64 32
+# =============================================================================
+
+vault_mysql_root_password: Ch@ngeMe
+vault_postgres_password: Ch@ngeMe
+vault_mongo_password: Ch@ngeMe
+vault_redis_password: Ch@ngeMe
+vault_rabbitmq_password: Ch@ngeMe
+vault_minio_password: Ch@ngeMe
+vault_grafana_password: Ch@ngeMe
+vault_pgadmin_password: Ch@ngeMe
+vault_crowdsec_password: Ch@ngeMe
+vault_postfix_smtp_password: Ch@ngeMe
+vault_crowdsec_enroll_key: ""
+vault_cloudflare_api_token: ""

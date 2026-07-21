@@ -1,0 +1,52 @@
+---
+# =============================================================================
+# Update Docker Infrastructure (pull images + recreate)
+# =============================================================================
+# Usage:
+#   ansible-playbook playbooks/update.yml
+# =============================================================================
+
+- name: Backup before update
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Run backup
+      command: "{{ infra_dir }}/scripts/backup/backup.sh"
+      args:
+        chdir: "{{ infra_dir }}"
+      register: backup_result
+      changed_when: false
+
+    - name: Show backup result
+      debug:
+        msg: "{{ backup_result.stdout_lines[-1:] }}"
+
+- name: Pull new images and recreate
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Pull latest images
+      community.docker.docker_compose_v2:
+        project_src: "{{ infra_dir }}"
+        pull: always
+        env_file: "{{ infra_dir }}/.env"
+
+    - name: Recreate services
+      community.docker.docker_compose_v2:
+        project_src: "{{ infra_dir }}"
+        files:
+          - docker-compose.yml
+        env_file: "{{ infra_dir }}/.env"
+        profiles: "{{ deploy_profile }}"
+        state: present
+        recreate: always
+        remove_orphans: true
+
+- name: Verify health
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  roles:
+    - healthcheck

@@ -1,0 +1,25 @@
+---
+# =============================================================================
+# Schedule automated backups via cron
+# =============================================================================
+
+- name: Ensure backup script is executable
+  file:
+    path: "{{ infra_dir }}/scripts/backup/backup.sh"
+    mode: '0755'
+
+- name: Set backup cron job
+  cron:
+    name: "docker-infrastructure backup"
+    minute: "{{ backup_cron_minute }}"
+    hour: "{{ backup_cron_hour }}"
+    job: "cd {{ infra_dir }} && ./scripts/backup/backup.sh >> {{ infra_dir }}/backups/cron.log 2>&1"
+    user: root
+
+- name: Set backup retention cleanup cron
+  cron:
+    name: "docker-infrastructure backup cleanup"
+    minute: "30"
+    hour: "{{ backup_cron_hour }}"
+    job: "find {{ backup_dir }} -name '*.gz' -mtime +{{ backup_retention_days }} -delete"
+    user: root

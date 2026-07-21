@@ -1,0 +1,22 @@
+---
+# =============================================================================
+# Global Variables — secrets use !vault references
+# =============================================================================
+
+infra_dir: /opt/docker-infrastructure
+project_name: infrastructure
+timezone: UTC
+
+docker_compose_version: v2.32.4
+
+deploy_profile: production
+
+backup_dir: "{{ infra_dir }}/backups"
+backup_retention_days: 7
+backup_cron_hour: 2
+backup_cron_minute: 0
+
+infra_domain: example.com
+cloudflare_email: admin@example.com
+postfix_relayhost: ""
+postfix_smtp_user: ""

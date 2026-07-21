@@ -1,0 +1,10 @@
+---
+# =============================================================================
+# Development Environment
+# =============================================================================
+
+deploy_profile: development
+
+env_overrides:
+  PRODUCTION: "false"
+  DB_BIND_ADDRESS: ""

@@ -1,0 +1,35 @@
+---
+# =============================================================================
+# Deploy Docker Infrastructure
+# =============================================================================
+# Usage:
+#   ansible-playbook playbooks/deploy.yml
+#   ansible-playbook -i inventory/development.yml playbooks/deploy.yml
+# =============================================================================
+
+- name: Bootstrap server (first run)
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  roles:
+    - docker
+    - firewall
+  tags: [bootstrap]
+
+- name: Deploy stack
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  roles:
+    - env
+    - deploy
+    - backup
+  tags: [deploy]
+
+- name: Verify health
+  hosts: infrastructure
+  gather_facts: false
+  become: true
+  roles:
+    - healthcheck
+  tags: [healthcheck]
