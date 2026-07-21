@@ -37,7 +37,7 @@ ansible-infrastructure/
 ### 1. Install Ansible + Collections
 
 ```bash
-pip install ansible
+sudo apt update && sudo apt install ansible -y
 ansible-galaxy collection install community.docker
 ```
 
