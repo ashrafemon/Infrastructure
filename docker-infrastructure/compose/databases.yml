@@ -17,13 +17,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
       MYSQL_PWD: ${MYSQL_ROOT_PASSWORD:?err}
-      REPLICATION_USER: ${REPLICATION_USER:-replicator}
-      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
       TZ: ${TZ:-UTC}
     volumes:
       - mysql_data:/var/lib/mysql
       - ../configs/mysql/conf.d/master.cnf:/etc/mysql/conf.d/master.cnf:ro
-      - ../scripts/mysql/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh:ro
     healthcheck:
       test:
         [
@@ -34,44 +31,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # ---------------------------------------------------------------------------
-  # MySQL Replica
-  # ---------------------------------------------------------------------------
-  mysql-replica:
-    image: mysql:8.0.46
-    container_name: mysql-replica
-    restart: unless-stopped
-    networks:
-      - backend_network
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
-      MYSQL_PWD: ${MYSQL_ROOT_PASSWORD:?err}
-      REPLICATION_USER: ${REPLICATION_USER:-replicator}
-      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?err}
-      TZ: ${TZ:-UTC}
-    volumes:
-      - mysql_replica_data:/var/lib/mysql
-      - ../configs/mysql/conf.d/replica.cnf:/etc/mysql/conf.d/replica.cnf:ro
-      - ../scripts/mysql/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
-    depends_on:
-      mysql:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e 'SHOW REPLICA STATUS\\G' 2>/dev/null | grep -q 'Replica_IO_Running: Yes'",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 90s
     logging:
       driver: json-file
       options:
@@ -93,63 +52,14 @@ services:
       TZ: ${TZ:-UTC}
     command:
       - postgres
-      - -c
-      - wal_level=replica
-      - -c
-      - max_wal_senders=5
-      - -c
-      - wal_keep_size=1024
-      - -c
-      - max_replication_slots=5
-      - -c
-      - hot_standby=on
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../scripts/postgres/init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # ---------------------------------------------------------------------------
-  # PostgreSQL Replica
-  # ---------------------------------------------------------------------------
-  postgres-replica:
-    image: postgres:18.4
-    container_name: postgres-replica
-    restart: unless-stopped
-    networks:
-      - backend_network
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      TZ: ${TZ:-UTC}
-    volumes:
-      - postgres_replica_data:/var/lib/postgresql/data
-      - ../scripts/postgres/init-standby.sh:/init-standby.sh:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: >
-      bash -c '
-      if [ ! -f /var/lib/postgresql/data/standby.signal ]; then
-        /init-standby.sh
-      fi
-      exec docker-entrypoint.sh postgres
-      '
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
     logging:
       driver: json-file
       options:

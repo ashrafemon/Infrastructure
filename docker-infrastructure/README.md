@@ -96,9 +96,8 @@ docker compose --profile production up -d
 ### 4. Start Only What You Need
 
 ```bash
-# Database server (master + replicas + management UIs)
-docker compose up -d mysql mysql-replica postgres postgres-replica \
-  mongo redis phpmyadmin pgadmin redisinsight
+# Database server (management UIs)
+docker compose up -d mysql postgres mongo redis phpmyadmin pgadmin redisinsight
 
 # Monitoring server
 docker compose --profile production up -d prometheus grafana loki promtail
@@ -113,10 +112,6 @@ docker compose --profile production up -d jenkins
 docker compose up -d mysql redis rabbitmq minio \
 
 
-# Full web server (proxy + all management UIs)
-docker compose up -d nginx-proxy-manager phpmyadmin pgadmin redisinsight
-
-# Minimal production (databases + proxy + queue)
 docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq minio
 ```
 
@@ -144,9 +139,7 @@ docker compose up -d mysql postgres mongo redis nginx-proxy-manager rabbitmq min
 | Service          | Version     | Port  | Description                                |
 |------------------|-------------|-------|--------------------------------------------|
 | MySQL            | 8.0.41      | 3306  | Primary relational database                 |
-| MySQL Replica    | 8.0.41      | 3307  | Read replica (auto-setup)                  |
 | PostgreSQL       | 18.4        | 5432  | Advanced relational database               |
-| PostgreSQL Replica | 18.4      | 5433  | Hot standby (auto-setup)                   |
 | MongoDB          | 8.0.15      | 27017 | NoSQL document database                    |
 | Redis            | 7.4.5-alpine| 6379  | In-memory cache, session store, queue      |
 
@@ -258,8 +251,7 @@ All data is persisted in Docker volumes (named, not host bind mounts):
 | jenkins_home         | Jenkins                        |
 | arcane_data          | Arcane                         |
 | mailpit_data         | Mailpit (dev only)             |
-| mysql_replica_data   | MySQL Replica                  |
-| postgres_replica_data | PostgreSQL Replica            |
+
 
 ## Usage
 
@@ -357,43 +349,6 @@ docker exec -it rabbitmq rabbitmqadmin list queues
 ```
 
 See [docs/backup.md](docs/backup.md) for detailed backup and restore instructions.
-
-## Database Replication
-
-Both MySQL and PostgreSQL have automatic read replicas:
-
-| Service | Type | Port | Replicates from |
-|---------|------|------|----------------|
-| `mysql-replica` | MySQL read replica | 3307 | `mysql` (master) |
-| `postgres-replica` | PostgreSQL hot standby | 5433 | `postgres` (primary) |
-
-### Automatic Setup
-
-On first start:
-1. **Master/Primary** creates replication user and slot via init scripts
-2. **Replica/Standby** waits for master to be healthy (`depends_on`)
-3. **MySQL replica** — init script runs `CHANGE REPLICATION SOURCE TO` + `START REPLICA`
-4. **PostgreSQL standby** — init script runs `pg_basebackup` to clone data, creates `standby.signal`
-
-### Verification
-
-```bash
-# MySQL — check replica status
-docker exec mysql-replica mysql -u root -p"${MYSQL_ROOT_PASSWORD}" \
-  -e "SHOW REPLICA STATUS\G" | grep -E "Replica_IO_Running|Replica_SQL_Running"
-
-# PostgreSQL — check if standby is receiving
-docker exec postgres-replica psql -U postgres -c "SELECT pg_is_in_recovery();"
-```
-
-### Connection Strings
-
-| Role | Host | Port | User | Password from |
-|------|------|------|------|---------------|
-| MySQL master | `mysql` | 3306 | `root` | `MYSQL_ROOT_PASSWORD` |
-| MySQL replica | `mysql-replica` | 3307 | `root` | `MYSQL_ROOT_PASSWORD` |
-| PostgreSQL primary | `postgres` | 5432 | `postgres` | `POSTGRES_PASSWORD` |
-| PostgreSQL standby | `postgres-replica` | 5433 | `postgres` | `POSTGRES_PASSWORD` |
 
 ## Subdomain Binding
 
