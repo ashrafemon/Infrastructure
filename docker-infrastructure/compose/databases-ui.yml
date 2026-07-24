@@ -61,7 +61,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/login"]
+      test: ["CMD-SHELL", "cat /proc/net/tcp6 | grep ' 0A ' | grep -q ':0050 '"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -89,7 +89,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5540/healthcheck"]
+      test: ["CMD-SHELL", "cat /proc/net/tcp | grep ' 0A ' | grep -q ':15A4 '"]
       interval: 30s
       timeout: 10s
       retries: 3
